@@ -1,4 +1,4 @@
-#### start
+#### start vault and other containers
 ```
 docker-compose up -d
 ```
@@ -18,7 +18,7 @@ docker-compose exec vault netstat -an | grep 822
 ```
 docker-compose exec test-blacklisted curl 172.16.238.2:8220/v1/sys/health
 ```
-#### check port 822[01] status on vault container (8220 goes down on IP 172.16.238.2).
+#### check port 822[01] status on vault container (8220 is down on IP 172.16.238.2).
 ```
 docker-compose exec vault netstat -an | grep 822
 ```
