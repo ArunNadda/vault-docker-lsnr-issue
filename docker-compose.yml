@@ -1,0 +1,55 @@
+version: "3.3"
+
+services:
+  vault:
+    image: vault:1.5.4
+    ports:
+      - '8220'
+    cap_add:
+      - IPC_LOCK
+    networks:
+      testing_net:
+        ipv4_address: 172.16.238.2
+    environment:
+      - VAULT_ADDR=http://127.0.0.1:8220
+      - |
+        VAULT_LOCAL_CONFIG=
+        api_addr     = "http://172.16.238.2:8220"
+
+        # "trace", "debug", "info", "warn", and "err"
+        log_level = "trace"
+
+        listener "tcp" {
+          address       = "127.0.0.1:8220"
+          tls_disable = "true"
+        }
+
+        listener "tcp" {
+          address       = "172.16.238.2:8220"
+          tls_disable = "true"
+
+          proxy_protocol_behavior = "deny_unauthorized"
+          proxy_protocol_authorized_addrs = "172.16.238.2/32,172.16.238.3/32"
+        }
+
+  test-whitelisted:
+    image: amouat/network-utils
+    command: sleep 2147483647
+    networks:
+      testing_net:
+        ipv4_address: 172.16.238.3
+
+  test-blacklisted:
+    image: amouat/network-utils
+    command: sleep 2147483647
+    networks:
+      testing_net:
+        ipv4_address: 172.16.238.4
+
+networks:
+  testing_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
